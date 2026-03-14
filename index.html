@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kanna — Parallel Flow</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0d0010;
+    --purple-deep: #1a0533;
+    --purple-mid: #6b1a8a;
+    --pink: #e8357a;
+    --orange: #ff8c00;
+    --green: #00FF41;
+    --text: #e8e0f0;
+    --muted: #7a6a8a;
+    --bar1: #ff2d78;
+    --bar3: #9b1faa;
+    --bar5: #2a0544;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.08) 3px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ---- HERO ---- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+      #1a0533 0%,
+      #3d0e62 35%,
+      #e8357a 70%,
+      #ff8c00 100%
+    );
+    opacity: 0.25;
+  }
+
+  /* perspective grid */
+  .grid {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 45%;
+    background-image:
+      linear-gradient(rgba(232,53,122,0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,53,122,0.15) 1px, transparent 1px);
+    background-size: 60px 30px;
+    mask-image: linear-gradient(180deg, transparent 0%, black 40%);
+    transform: perspective(400px) rotateX(40deg);
+    transform-origin: bottom center;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 700px;
+  }
+
+  /* icon */
+  .icon-wrap {
+    margin: 0 auto 48px;
+    width: 120px;
+    height: 120px;
+    border-radius: 27px;
+    background: #1a0533;
+    overflow: hidden;
+    position: relative;
+
+  }
+
+
+
+  .icon-wrap svg { width: 100%; height: 100%; }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--green);
+    margin-bottom: 20px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(52px, 10vw, 96px);
+    font-weight: 500;
+    letter-spacing: 16px;
+    background: linear-gradient(135deg, #ff2d78 0%, #ff8c00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+
+  .tagline {
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 56px;
+    line-height: 1.6;
+  }
+
+  .tagline em {
+    color: var(--text);
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, #ff2d78, #ff8c00);
+    color: #0d0010;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    padding: 16px 36px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .download-btn:hover { opacity: 0.85; transform: translateY(-2px); }
+
+  .download-btn svg { width: 16px; height: 16px; }
+
+  .version {
+    margin-top: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  /* ---- FEATURES ---- */
+  .features {
+    padding: 120px 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--green);
+    margin-bottom: 64px;
+    opacity: 0.7;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+  }
+
+  .feature {
+    padding: 40px 36px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.3s;
+  }
+
+  .feature:hover { background: rgba(255,255,255,0.04); }
+
+  .feature-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 28px;
+  }
+
+  .bar {
+    height: 6px;
+    border-radius: 3px;
+  }
+
+  .feature h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .feature p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  /* ---- TERMINAL DEMO ---- */
+  .demo {
+    padding: 80px 24px 120px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .terminal {
+    background: #0a0a0f;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .terminal-bar {
+    background: #111118;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #2a2a2a; }
+
+  .terminal-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .terminal-body { padding: 24px 28px; }
+
+  .t-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+
+  .t-label { color: var(--muted); width: 72px; flex-shrink: 0; }
+
+  .t-track {
+    flex: 1;
+    height: 8px;
+    background: #1a1a2a;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .t-fill {
+    height: 100%;
+    border-radius: 4px;
+    animation: grow 2s ease-out forwards;
+  }
+
+  @keyframes grow { from { width: 0; } }
+
+  .t-status {
+    font-size: 11px;
+    letter-spacing: 1px;
+    width: 90px;
+    text-align: right;
+  }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 8px;
+    height: 13px;
+    background: var(--green);
+    animation: blink 1.2s step-end infinite;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* ---- FOOTER ---- */
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 40px 24px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="grid"></div>
+
+  <div class="hero-content">
+
+    <div class="icon-wrap">
+      <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1a0533"/>
+            <stop offset="40%" stop-color="#6b1a8a"/>
+            <stop offset="75%" stop-color="#e8357a"/>
+            <stop offset="100%" stop-color="#ff8c00"/>
+          </linearGradient>
+          <linearGradient id="b1" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ff2d78"/>
+            <stop offset="100%" stop-color="#ff8c00"/>
+          </linearGradient>
+          <linearGradient id="b2" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#cc1fcc"/>
+            <stop offset="100%" stop-color="#ff2d78"/>
+          </linearGradient>
+          <linearGradient id="b3" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#9b1faa"/>
+            <stop offset="100%" stop-color="#cc1fcc"/>
+          </linearGradient>
+          <linearGradient id="b4" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#4a0e72"/>
+            <stop offset="100%" stop-color="#9b1faa"/>
+          </linearGradient>
+          <linearGradient id="b5" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#2a0544"/>
+            <stop offset="100%" stop-color="#4a0e72"/>
+          </linearGradient>
+          <clipPath id="clip"><rect width="256" height="256" rx="56"/></clipPath>
+        </defs>
+        <rect width="256" height="256" rx="56" fill="#1a0533"/>
+        <rect width="256" height="256" clip-path="url(#clip)" fill="url(#sky)"/>
+        <rect x="40"  y="22"  width="28" height="20" rx="10" fill="url(#b1)"/>
+        <rect x="82"  y="22"  width="106" height="20" rx="10" fill="url(#b1)"/>
+        <rect x="202" y="22"  width="14" height="20" rx="5" fill="#00FF41" opacity="0.92"/>
+        <rect x="40"  y="70"  width="28" height="20" rx="10" fill="url(#b2)"/>
+        <rect x="82"  y="70"  width="68" height="20" rx="10" fill="url(#b2)"/>
+        <rect x="40"  y="118" width="28" height="20" rx="10" fill="url(#b3)"/>
+        <rect x="82"  y="118" width="30" height="20" rx="10" fill="url(#b3)" opacity="0.6"/>
+        <rect x="40"  y="166" width="28" height="20" rx="10" fill="url(#b4)"/>
+        <rect x="82"  y="166" width="30" height="20" rx="10" fill="url(#b4)" opacity="0.72"/>
+        <rect x="120" y="166" width="30" height="20" rx="10" fill="url(#b4)" opacity="0.38"/>
+        <rect x="40"  y="214" width="28" height="20" rx="10" fill="url(#b5)"/>
+        <rect x="82"  y="214" width="30" height="20" rx="10" fill="url(#b5)" opacity="0.72"/>
+        <rect x="120" y="214" width="30" height="20" rx="10" fill="url(#b5)" opacity="0.50"/>
+        <rect x="158" y="214" width="30" height="20" rx="10" fill="url(#b5)" opacity="0.28"/>
+      </svg>
+    </div>
+
+    <p class="eyebrow">NATIVE MACOS APP</p>
+    <h1>KANNA</h1>
+    <p class="tagline">Lightweight. Efficient. <em>Fast.</em></p>
+
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="#" class="download-btn" id="btn-arm">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 2v8M5 7l3 3 3-3M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        APPLE SILICON
+      </a>
+      <a href="#" class="download-btn" id="btn-intel" style="background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.15);">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 2v8M5 7l3 3 3-3M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        INTEL
+      </a>
+    </div>
+    <p class="version" id="version-label">macOS 14+</p>
+
+    <script>
+      const REPO = 'jemdiggity/kanna';
+
+      fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+        .then(r => r.json())
+        .then(release => {
+          const assets = release.assets || [];
+
+          const arm = assets.find(a =>
+            a.name.match(/arm64|apple.?silicon/i) && a.name.endsWith('.dmg')
+          );
+          const intel = assets.find(a =>
+            a.name.match(/x86|intel/i) && a.name.endsWith('.dmg')
+          );
+
+          if (arm)   document.getElementById('btn-arm').href   = arm.browser_download_url;
+          if (intel) document.getElementById('btn-intel').href = intel.browser_download_url;
+
+          if (release.tag_name) {
+            document.getElementById('version-label').textContent =
+              `${release.tag_name} · macOS 14+`;
+          }
+        })
+        .catch(() => {
+          // silently fail — buttons just stay as #
+        });
+    </script>
+
+  </div>
+</section>
+
+<section class="features">
+  <p class="section-label">// WHAT IT DOES</p>
+  <div class="feature-grid">
+
+    <div class="feature">
+      <div class="feature-bars">
+        <div class="bar" style="width:90%; background: linear-gradient(90deg,#ff2d78,#ff8c00);"></div>
+        <div class="bar" style="width:55%; background: linear-gradient(90deg,#cc1fcc,#ff2d78); opacity:0.7;"></div>
+        <div class="bar" style="width:30%; background: linear-gradient(90deg,#9b1faa,#cc1fcc); opacity:0.45;"></div>
+      </div>
+      <h3>PARALLEL AGENTS</h3>
+      <p>Spin up multiple Claude Code sessions simultaneously. Each runs in its own worktree, independently, without blocking you.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-bars">
+        <div class="bar" style="width:75%; background: linear-gradient(90deg,#ff2d78,#ff8c00);"></div>
+        <div class="bar" style="width:10%; background: #00FF41; opacity:0.9;"></div>
+      </div>
+      <h3>HUMAN IN LOOP</h3>
+      <p>Agents pause and surface decisions that need you. Review, approve, redirect — then get out of the way. Maximum velocity, minimum interruption.</p>
+    </div>
+
+    <div class="feature">
+      <div class="feature-bars">
+        <div class="bar" style="width:85%; background: linear-gradient(90deg,#6b1a8a,#e8357a); opacity:0.8;"></div>
+        <div class="bar" style="width:85%; background: linear-gradient(90deg,#6b1a8a,#e8357a); opacity:0.6;"></div>
+        <div class="bar" style="width:85%; background: linear-gradient(90deg,#6b1a8a,#e8357a); opacity:0.35;"></div>
+      </div>
+      <h3>NATIVE MACOS</h3>
+      <p>Built for Apple Silicon. Lives in your menu bar. Feels like it belongs — not like a web app wearing a trenchcoat.</p>
+    </div>
+
+  </div>
+</section>
+
+<section class="demo">
+  <p class="section-label" style="text-align:center; margin-bottom:32px;">// PARALLEL FLOW</p>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <span class="terminal-title">kanna — parallel sessions</span>
+    </div>
+    <div class="terminal-body">
+
+      <div class="t-row">
+        <span class="t-label">agent_1</span>
+        <div class="t-track">
+          <div class="t-fill" style="width:82%; background:linear-gradient(90deg,#ff2d78,#ff8c00); animation-duration:1.8s;"></div>
+        </div>
+        <span class="t-status" style="color:#00FF41;">review<span class="cursor-blink"></span></span>
+      </div>
+
+      <div class="t-row">
+        <span class="t-label">agent_2</span>
+        <div class="t-track">
+          <div class="t-fill" style="width:51%; background:linear-gradient(90deg,#cc1fcc,#ff2d78); animation-duration:2.4s;"></div>
+        </div>
+        <span class="t-status" style="color:#cc1fcc;">running</span>
+      </div>
+
+      <div class="t-row">
+        <span class="t-label">agent_3</span>
+        <div class="t-track">
+          <div class="t-fill" style="width:23%; background:linear-gradient(90deg,#4a0e72,#9b1faa); animation-duration:3s;"></div>
+        </div>
+        <span class="t-status" style="color:#4a0e72;">running</span>
+      </div>
+
+      <div class="t-row">
+        <span class="t-label">agent_4</span>
+        <div class="t-track">
+          <div class="t-fill" style="width:4%; background:#2a2a3a; animation-duration:0.5s;"></div>
+        </div>
+        <span class="t-status" style="color:#2a2a4a;">queued</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  KANNA · PARALLEL FLOW · v0.1.0
+</footer>
+
+</body>
+</html>
