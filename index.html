@@ -3,528 +3,1044 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Kanna — Parallel Flow</title>
+<title>Kanna - Structured Autonomy for Coding Agents</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 
   :root {
-    --bg: #0d0010;
-    --purple-deep: #1a0533;
-    --purple-mid: #6b1a8a;
-    --pink: #e8357a;
-    --orange: #ff8c00;
-    --green: #00FF41;
-    --text: #e8e0f0;
-    --muted: #7a6a8a;
-    --bar1: #ff2d78;
-    --bar3: #9b1faa;
-    --bar5: #2a0544;
+    --bg: #fbfaf8;
+    --surface: #ffffff;
+    --surface-soft: #f4f5f7;
+    --ink: #191923;
+    --muted: #676978;
+    --line: #dedfe5;
+    --hot-pink: #f72b89;
+    --orange: #ff8a12;
+    --magenta: #df1fb7;
+    --violet: #9630dc;
+    --indigo: #1957c3;
+    --blue: #1458c5;
+    --slate: #736b91;
+    --green: #17d34c;
+    --shadow: 0 24px 70px rgba(25, 25, 35, 0.12);
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    letter-spacing: 0;
+  }
 
   html { scroll-behavior: smooth; }
 
   body {
-    background: var(--bg);
-    color: var(--text);
+    min-height: 100vh;
+    background:
+      linear-gradient(180deg, #ffffff 0%, var(--bg) 48%, #f1f3f8 100%);
+    color: var(--ink);
     font-family: 'DM Sans', sans-serif;
-    font-weight: 300;
+    font-weight: 400;
     overflow-x: hidden;
   }
 
-  /* scanline overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(0,0,0,0.08) 3px,
-      rgba(0,0,0,0.08) 4px
-    );
-    pointer-events: none;
-    z-index: 100;
-  }
+  a { color: inherit; }
 
-  /* ---- HERO ---- */
   .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    padding: 56px 24px 40px;
+    border-bottom: 1px solid rgba(222, 223, 229, 0.72);
+  }
+
+  .hero-inner {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.78fr);
+    gap: 56px;
     align-items: center;
-    justify-content: center;
-    padding: 80px 24px;
-    position: relative;
-    overflow: hidden;
   }
 
-  .hero-bg {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg,
-      #1a0533 0%,
-      #3d0e62 35%,
-      #e8357a 70%,
-      #ff8c00 100%
-    );
-    opacity: 0.25;
+  .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
   }
 
-  /* perspective grid */
-  .grid {
-    position: absolute;
-    bottom: 0;
-    left: 0; right: 0;
-    height: 45%;
-    background-image:
-      linear-gradient(rgba(232,53,122,0.35) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(232,53,122,0.15) 1px, transparent 1px);
-    background-size: 60px 30px;
-    mask-image: linear-gradient(180deg, transparent 0%, black 40%);
-    transform: perspective(400px) rotateX(40deg);
-    transform-origin: bottom center;
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    max-width: 700px;
-  }
-
-  /* icon */
   .icon-wrap {
-    margin: 0 auto 48px;
-    width: 120px;
-    height: 120px;
-    border-radius: 27px;
-    background: #1a0533;
-    overflow: hidden;
-    position: relative;
-
+    width: 68px;
+    height: 68px;
+    border-radius: 18px;
+    box-shadow: 0 14px 30px rgba(25, 25, 35, 0.14);
   }
 
+  .app-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 
+  .brand-word {
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+  }
 
-  .icon-wrap svg { width: 100%; height: 100%; }
+  .eyebrow,
+  .section-label,
+  .version,
+  .workflow-step,
+  .stage,
+  .agent-pill,
+  .status-chip {
+    font-family: 'DM Mono', monospace;
+  }
 
   .eyebrow {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 4px;
-    color: var(--green);
-    margin-bottom: 20px;
-    opacity: 0.8;
+    font-size: 13px;
+    color: var(--slate);
+    margin-bottom: 16px;
+    font-weight: 500;
   }
 
   h1 {
-    font-family: 'DM Mono', monospace;
-    font-size: clamp(52px, 10vw, 96px);
-    font-weight: 500;
-    letter-spacing: 16px;
-    background: linear-gradient(135deg, #ff2d78 0%, #ff8c00 100%);
+    font-size: 84px;
+    line-height: 0.94;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .slogan {
+    font-size: 32px;
+    line-height: 1.16;
+    font-weight: 600;
+    max-width: 620px;
+    margin-bottom: 18px;
+    background: linear-gradient(90deg, var(--hot-pink), var(--orange) 45%, var(--blue));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    line-height: 1;
-    margin-bottom: 24px;
   }
 
-  .tagline {
-    font-size: 18px;
-    font-weight: 300;
+  .hero-copy {
+    max-width: 690px;
     color: var(--muted);
-    letter-spacing: 1px;
-    margin-bottom: 56px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.62;
+    margin-bottom: 30px;
   }
 
-  .tagline em {
-    color: var(--text);
-    font-style: normal;
-    font-weight: 400;
+  .download-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
   }
 
   .download-btn {
+    min-height: 48px;
     display: inline-flex;
     align-items: center;
-    gap: 12px;
-    background: linear-gradient(135deg, #ff2d78, #ff8c00);
-    color: #0d0010;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 20px;
+    border-radius: 8px;
     font-family: 'DM Mono', monospace;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 2px;
-    padding: 16px 36px;
-    border-radius: 4px;
     text-decoration: none;
-    transition: opacity 0.2s, transform 0.2s;
-    border: none;
-    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   }
 
-  .download-btn:hover { opacity: 0.85; transform: translateY(-2px); }
+  .download-btn.primary {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--hot-pink), var(--orange));
+    box-shadow: 0 14px 30px rgba(247, 43, 137, 0.25);
+  }
 
-  .download-btn svg { width: 16px; height: 16px; }
+  .download-btn.secondary {
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--line);
+  }
+
+  .download-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .download-btn.primary:hover {
+    box-shadow: 0 18px 36px rgba(247, 43, 137, 0.30);
+  }
+
+  .download-btn.secondary:hover {
+    border-color: rgba(25, 25, 35, 0.24);
+  }
+
+  .download-btn svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+  }
 
   .version {
-    margin-top: 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
+    margin-top: 14px;
     color: var(--muted);
-    letter-spacing: 2px;
+    font-size: 12px;
   }
 
-  /* ---- FEATURES ---- */
-  .features {
-    padding: 120px 24px;
-    max-width: 1000px;
+  .hero-workflow {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 18px;
+  }
+
+  .workflow-mini-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .workflow-mini-header span {
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .mini-stage {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--surface-soft);
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+  }
+
+  .mini-stage.active {
+    background: #fff7f2;
+    border-color: rgba(255, 138, 18, 0.38);
+  }
+
+  .stage-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--hot-pink), var(--orange));
+  }
+
+  .stage-dot.blue {
+    background: linear-gradient(135deg, var(--indigo), var(--blue));
+  }
+
+  .stage-dot.green {
+    background: var(--green);
+  }
+
+  .mini-stage strong {
+    display: block;
+    font-size: 14px;
+  }
+
+  .mini-stage small {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 2px;
+  }
+
+  .status-chip {
+    color: var(--slate);
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 8px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .handoff-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .handoff-row span {
+    display: block;
+    border-radius: 8px;
+    padding: 10px;
+    background: #f7f7fb;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .handoff-row span:first-child {
+    color: #0f7a33;
+    background: #effbf3;
+  }
+
+  .product-section,
+  .features,
+  .workflow-section {
+    width: min(1180px, calc(100% - 48px));
     margin: 0 auto;
   }
 
+  .product-section {
+    padding: 44px 0 88px;
+  }
+
+  .section-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 0.7fr) minmax(260px, 0.3fr);
+    gap: 28px;
+    align-items: end;
+    margin-bottom: 24px;
+  }
+
   .section-label {
+    color: var(--slate);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-size: 38px;
+    line-height: 1.12;
+    font-weight: 650;
+  }
+
+  .section-note {
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .product-shot {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .shot-chrome {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--line);
+    background: #fafbfc;
+  }
+
+  .shot-title {
     font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 4px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .shot-controls {
+    display: flex;
+    gap: 7px;
+  }
+
+  .shot-controls span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .shot-grid {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr) 240px;
+    min-height: 460px;
+  }
+
+  .shot-sidebar,
+  .shot-main,
+  .shot-inspector {
+    padding: 20px;
+  }
+
+  .shot-sidebar {
+    background: #f7f8fb;
+    border-right: 1px solid var(--line);
+  }
+
+  .repo-name {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .task {
+    padding: 12px;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .task.active {
+    color: var(--ink);
+    background: #ffffff;
+    border: 1px solid var(--line);
+    box-shadow: 0 8px 20px rgba(25, 25, 35, 0.05);
+  }
+
+  .shot-main {
+    min-width: 0;
+  }
+
+  .shot-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-weight: 650;
+  }
+
+  .agent-pill {
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--violet), var(--blue));
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .stage-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .stage {
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .stage.done {
+    color: #0f7a33;
+    background: #effbf3;
+  }
+
+  .stage.active {
+    color: #9b4600;
+    background: #fff3e6;
+  }
+
+  .terminal-preview {
+    background: #171822;
+    border-radius: 8px;
+    padding: 18px;
+    color: #edf0f6;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    line-height: 1.75;
+    min-height: 154px;
+  }
+
+  .terminal-preview p {
+    overflow-wrap: anywhere;
+  }
+
+  .terminal-preview span {
     color: var(--green);
-    margin-bottom: 64px;
-    opacity: 0.7;
+  }
+
+  .terminal-preview .success {
+    color: #95f3b5;
+  }
+
+  .activity-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .activity-item strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .shot-inspector {
+    background: #fbfbfd;
+    border-left: 1px solid var(--line);
+  }
+
+  .inspector-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: #ffffff;
+    margin-bottom: 12px;
+  }
+
+  .inspector-card strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .inspector-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .features {
+    padding: 0 0 96px;
   }
 
   .feature-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
   }
 
   .feature {
-    padding: 40px 36px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.04);
-    transition: background 0.3s;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 24px;
+    min-height: 230px;
+    box-shadow: 0 12px 36px rgba(25, 25, 35, 0.06);
   }
 
-  .feature:hover { background: rgba(255,255,255,0.04); }
+  .feature-mark {
+    width: 44px;
+    height: 10px;
+    border-radius: 999px;
+    margin-bottom: 26px;
+  }
 
-  .feature-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  .feature-mark.hot {
+    background: linear-gradient(90deg, var(--hot-pink), var(--orange));
+  }
+
+  .feature-mark.violet {
+    background: linear-gradient(90deg, var(--magenta), var(--violet));
+  }
+
+  .feature-mark.blue {
+    background: linear-gradient(90deg, var(--indigo), var(--slate));
+  }
+
+  .feature h3,
+  .workflow-card h3 {
+    font-size: 19px;
+    line-height: 1.24;
+    font-weight: 650;
+    margin-bottom: 10px;
+  }
+
+  .feature p,
+  .workflow-card p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.58;
+  }
+
+  .workflow-section {
+    padding: 0 0 96px;
+  }
+
+  .workflow-board {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .workflow-card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 214px;
+  }
+
+  .workflow-card.current {
+    border-color: rgba(247, 43, 137, 0.38);
+    background: linear-gradient(180deg, #fff7fb, #ffffff);
+  }
+
+  .workflow-step {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: #ffffff;
+    background: var(--ink);
+    font-size: 12px;
     margin-bottom: 28px;
   }
 
-  .bar {
-    height: 6px;
-    border-radius: 3px;
+  .workflow-card.current .workflow-step {
+    background: linear-gradient(135deg, var(--hot-pink), var(--orange));
   }
 
-  .feature h3 {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    color: var(--text);
-    margin-bottom: 12px;
-  }
-
-  .feature p {
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--muted);
-  }
-
-  /* ---- TERMINAL DEMO ---- */
-  .demo {
-    padding: 80px 24px 120px;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .terminal {
-    background: #0a0a0f;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .terminal-bar {
-    background: #111118;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .dot { width: 10px; height: 10px; border-radius: 50%; background: #2a2a2a; }
-
-  .terminal-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .terminal-body { padding: 24px 28px; }
-
-  .t-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-  }
-
-  .t-label { color: var(--muted); width: 72px; flex-shrink: 0; }
-
-  .t-track {
-    flex: 1;
-    height: 8px;
-    background: #1a1a2a;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .t-fill {
-    height: 100%;
-    border-radius: 4px;
-    animation: grow 2s ease-out forwards;
-  }
-
-  @keyframes grow { from { width: 0; } }
-
-  .t-status {
-    font-size: 11px;
-    letter-spacing: 1px;
-    width: 90px;
-    text-align: right;
-  }
-
-  .cursor-blink {
-    display: inline-block;
-    width: 8px;
-    height: 13px;
-    background: var(--green);
-    animation: blink 1.2s step-end infinite;
-    vertical-align: middle;
-    margin-left: 4px;
-  }
-
-  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-  /* ---- FOOTER ---- */
   footer {
-    border-top: 1px solid rgba(255,255,255,0.05);
-    padding: 40px 24px;
+    border-top: 1px solid var(--line);
+    padding: 34px 24px;
     text-align: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
     color: var(--muted);
-    letter-spacing: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+
+  @media (max-width: 1060px) {
+    .hero-inner,
+    .section-heading {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-workflow {
+      max-width: 620px;
+    }
+
+    .shot-grid {
+      grid-template-columns: 180px minmax(0, 1fr);
+    }
+
+    .shot-inspector {
+      grid-column: 1 / -1;
+      border-left: 0;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .inspector-card {
+      margin-bottom: 0;
+    }
+
+    .workflow-board {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      padding: 34px 18px 32px;
+    }
+
+    .hero-inner {
+      gap: 34px;
+    }
+
+    h1 {
+      font-size: 56px;
+    }
+
+    .slogan {
+      font-size: 25px;
+    }
+
+    .hero-copy {
+      font-size: 16px;
+    }
+
+    .download-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .download-btn {
+      width: 100%;
+    }
+
+    .product-section,
+    .features,
+    .workflow-section {
+      width: min(100% - 32px, 1180px);
+    }
+
+    .product-section {
+      padding: 28px 0 68px;
+    }
+
+    h2 {
+      font-size: 28px;
+    }
+
+    .shot-grid {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+
+    .shot-sidebar,
+    .shot-inspector {
+      border: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .shot-inspector {
+      grid-template-columns: 1fr;
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+    }
+
+    .feature-grid,
+    .workflow-board {
+      grid-template-columns: 1fr;
+    }
+
+    .feature,
+    .workflow-card {
+      min-height: 0;
+    }
+
+    .handoff-row {
+      grid-template-columns: 1fr;
+    }
+
+    .mini-stage {
+      grid-template-columns: 28px 1fr;
+    }
+
+    .mini-stage .status-chip {
+      grid-column: 2;
+      justify-self: start;
+    }
   }
 </style>
 </head>
 <body>
 
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="grid"></div>
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="brand-mark">
+        <div class="icon-wrap">
+          <svg class="app-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Kanna app icon">
+            <defs>
+              <linearGradient id="icon-background-shadow" x1="256" y1="47" x2="256" y2="466" gradientUnits="userSpaceOnUse">
+                <stop offset="0.62" stop-color="#ffffff"/>
+                <stop offset="1" stop-color="#f3f4f6"/>
+              </linearGradient>
+              <linearGradient id="icon-hot-gradient" x1="113" y1="99" x2="354" y2="99" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#f72b89"/>
+                <stop offset="1" stop-color="#ff8a12"/>
+              </linearGradient>
+              <linearGradient id="icon-pink-gradient" x1="113" y1="178" x2="293" y2="178" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#df1fb7"/>
+                <stop offset="1" stop-color="#ef2d9b"/>
+              </linearGradient>
+              <linearGradient id="icon-purple-gradient" x1="113" y1="256" x2="226" y2="256" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#9630dc"/>
+                <stop offset="1" stop-color="#9e23dd"/>
+              </linearGradient>
+              <linearGradient id="icon-indigo-gradient" x1="113" y1="335" x2="293" y2="335" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1957c3"/>
+                <stop offset="1" stop-color="#6940a4"/>
+              </linearGradient>
+              <linearGradient id="icon-blue-violet-gradient" x1="113" y1="414" x2="360" y2="414" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1458c5"/>
+                <stop offset="1" stop-color="#736b91"/>
+              </linearGradient>
+            </defs>
+            <rect width="512" height="512" fill="none"/>
+            <rect x="46" y="46" width="420" height="420" rx="105" fill="#ffffff"/>
+            <rect x="46" y="46" width="420" height="420" rx="105" fill="url(#icon-background-shadow)"/>
+            <rect x="46.5" y="46.5" width="419" height="419" rx="104.5" fill="none" stroke="#d6d6d6"/>
+            <rect x="113" y="82" width="45" height="34" rx="17" fill="url(#icon-hot-gradient)"/>
+            <rect x="180" y="82" width="174" height="34" rx="17" fill="url(#icon-hot-gradient)"/>
+            <rect x="377" y="82" width="24" height="34" rx="12" fill="#17d34c"/>
+            <rect x="113" y="161" width="45" height="34" rx="17" fill="url(#icon-pink-gradient)"/>
+            <rect x="180" y="161" width="113" height="34" rx="17" fill="url(#icon-pink-gradient)"/>
+            <rect x="113" y="240" width="45" height="33" rx="16.5" fill="url(#icon-purple-gradient)"/>
+            <rect x="180" y="240" width="46" height="33" rx="16.5" fill="url(#icon-purple-gradient)"/>
+            <rect x="113" y="318" width="45" height="33" rx="16.5" fill="url(#icon-indigo-gradient)"/>
+            <rect x="180" y="318" width="47" height="33" rx="16.5" fill="url(#icon-indigo-gradient)"/>
+            <rect x="245" y="318" width="48" height="33" rx="16.5" fill="url(#icon-indigo-gradient)"/>
+            <rect x="113" y="397" width="45" height="33" rx="16.5" fill="url(#icon-blue-violet-gradient)"/>
+            <rect x="180" y="397" width="47" height="33" rx="16.5" fill="url(#icon-blue-violet-gradient)"/>
+            <rect x="245" y="397" width="48" height="33" rx="16.5" fill="url(#icon-blue-violet-gradient)"/>
+            <rect x="313" y="397" width="47" height="33" rx="16.5" fill="url(#icon-blue-violet-gradient)"/>
+          </svg>
+        </div>
+        <span class="brand-word">Kanna</span>
+      </div>
 
-  <div class="hero-content">
+      <p class="eyebrow">MACOS DESKTOP APP FOR CODING-AGENT WORKFLOWS</p>
+      <h1>Kanna</h1>
+      <p class="slogan">Structured autonomy for coding agents.</p>
+      <p class="hero-copy">
+        Kanna lets Claude, Codex, and Copilot work through user-defined workflows:
+        advancing stages, requesting revisions, spawning follow-up tasks, and
+        coordinating through CLI or MCP while each task stays isolated in its own worktree.
+      </p>
 
-    <div class="icon-wrap">
-      <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#1a0533"/>
-            <stop offset="40%" stop-color="#6b1a8a"/>
-            <stop offset="75%" stop-color="#e8357a"/>
-            <stop offset="100%" stop-color="#ff8c00"/>
-          </linearGradient>
-          <linearGradient id="b1" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#ff2d78"/>
-            <stop offset="100%" stop-color="#ff8c00"/>
-          </linearGradient>
-          <linearGradient id="b2" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#cc1fcc"/>
-            <stop offset="100%" stop-color="#ff2d78"/>
-          </linearGradient>
-          <linearGradient id="b3" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#9b1faa"/>
-            <stop offset="100%" stop-color="#cc1fcc"/>
-          </linearGradient>
-          <linearGradient id="b4" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#4a0e72"/>
-            <stop offset="100%" stop-color="#9b1faa"/>
-          </linearGradient>
-          <linearGradient id="b5" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#2a0544"/>
-            <stop offset="100%" stop-color="#4a0e72"/>
-          </linearGradient>
-          <clipPath id="clip"><rect width="256" height="256" rx="56"/></clipPath>
-        </defs>
-        <rect width="256" height="256" rx="56" fill="#1a0533"/>
-        <rect width="256" height="256" clip-path="url(#clip)" fill="url(#sky)"/>
-        <rect x="40"  y="22"  width="28" height="20" rx="10" fill="url(#b1)"/>
-        <rect x="82"  y="22"  width="106" height="20" rx="10" fill="url(#b1)"/>
-        <rect x="202" y="22"  width="14" height="20" rx="5" fill="#00FF41" opacity="0.92"/>
-        <rect x="40"  y="70"  width="28" height="20" rx="10" fill="url(#b2)"/>
-        <rect x="82"  y="70"  width="68" height="20" rx="10" fill="url(#b2)"/>
-        <rect x="40"  y="118" width="28" height="20" rx="10" fill="url(#b3)"/>
-        <rect x="82"  y="118" width="30" height="20" rx="10" fill="url(#b3)" opacity="0.6"/>
-        <rect x="40"  y="166" width="28" height="20" rx="10" fill="url(#b4)"/>
-        <rect x="82"  y="166" width="30" height="20" rx="10" fill="url(#b4)" opacity="0.72"/>
-        <rect x="120" y="166" width="30" height="20" rx="10" fill="url(#b4)" opacity="0.38"/>
-        <rect x="40"  y="214" width="28" height="20" rx="10" fill="url(#b5)"/>
-        <rect x="82"  y="214" width="30" height="20" rx="10" fill="url(#b5)" opacity="0.72"/>
-        <rect x="120" y="214" width="30" height="20" rx="10" fill="url(#b5)" opacity="0.50"/>
-        <rect x="158" y="214" width="30" height="20" rx="10" fill="url(#b5)" opacity="0.28"/>
-      </svg>
+      <div class="download-row">
+        <a href="#" class="download-btn primary" id="btn-arm">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M8 2v8M5 7l3 3 3-3M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Apple Silicon
+        </a>
+        <a href="#" class="download-btn secondary" id="btn-intel">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M8 2v8M5 7l3 3 3-3M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Intel
+        </a>
+      </div>
+      <p class="version" id="version-label">macOS 14+</p>
     </div>
 
-    <p class="eyebrow">NATIVE MACOS APP</p>
-    <h1>KANNA</h1>
-    <p class="tagline">Lightweight. Efficient. <em>Fast.</em></p>
+    <aside class="hero-workflow" aria-label="Kanna pipeline status preview">
+      <div class="workflow-mini-header">
+        <strong>default pipeline</strong>
+        <span>.kanna/pipelines/default.json</span>
+      </div>
+      <div class="mini-stage active">
+        <span class="stage-dot"></span>
+        <div>
+          <strong>Implement</strong>
+          <small>Codex is updating the website worktree</small>
+        </div>
+        <span class="status-chip">active</span>
+      </div>
+      <div class="mini-stage">
+        <span class="stage-dot blue"></span>
+        <div>
+          <strong>Review</strong>
+          <small>Can approve, request revision, or knock back</small>
+        </div>
+        <span class="status-chip">next</span>
+      </div>
+      <div class="mini-stage">
+        <span class="stage-dot green"></span>
+        <div>
+          <strong>Follow-up</strong>
+          <small>Agents can spawn related tasks through CLI or MCP</small>
+        </div>
+        <span class="status-chip">ready</span>
+      </div>
+      <div class="handoff-row">
+        <span>stage-complete</span>
+        <span>revision-ready</span>
+      </div>
+    </aside>
+  </div>
+</header>
 
-    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-      <a href="#" class="download-btn" id="btn-arm">
-        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 2v8M5 7l3 3 3-3M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        APPLE SILICON
-      </a>
-      <a href="#" class="download-btn" id="btn-intel" style="background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.15);">
-        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 2v8M5 7l3 3 3-3M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        INTEL
-      </a>
+<section class="product-section" aria-label="Kanna workflow workspace preview">
+  <div class="section-heading">
+    <div>
+      <p class="section-label">// WORKSPACE</p>
+      <h2>A desktop control surface for agent workflows.</h2>
     </div>
-    <p class="version" id="version-label">macOS 14+</p>
+    <p class="section-note">
+      Tasks, terminals, diffs, files, and pipeline state stay in one place while agents move through the workflow.
+    </p>
+  </div>
 
-    <script>
-      const REPO = 'jemdiggity/kanna';
-
-      fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
-        .then(r => r.json())
-        .then(release => {
-          const assets = release.assets || [];
-
-          const arm = assets.find(a =>
-            a.name.match(/arm64|apple.?silicon/i) && a.name.endsWith('.dmg')
-          );
-          const intel = assets.find(a =>
-            a.name.match(/x86|intel/i) && a.name.endsWith('.dmg')
-          );
-
-          if (arm)   document.getElementById('btn-arm').href   = arm.browser_download_url;
-          if (intel) document.getElementById('btn-intel').href = intel.browser_download_url;
-
-          if (release.tag_name) {
-            document.getElementById('version-label').textContent =
-              `${release.tag_name} · macOS 14+`;
-          }
-        })
-        .catch(() => {
-          // silently fail — buttons just stay as #
-        });
-    </script>
-
+  <div class="product-shot">
+    <div class="shot-chrome">
+      <span class="shot-title">Kanna - kanna-web-3</span>
+      <div class="shot-controls" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <div class="shot-grid">
+      <div class="shot-sidebar">
+        <div class="repo-name">kanna-web-3</div>
+        <div class="task active">Website refresh</div>
+        <div class="task">MCP stage controls</div>
+        <div class="task">Mobile handoff</div>
+        <div class="task">Pipeline docs</div>
+      </div>
+      <div class="shot-main">
+        <div class="shot-toolbar">
+          <span>Website refresh</span>
+          <span class="agent-pill">Codex</span>
+        </div>
+        <div class="stage-strip">
+          <span class="stage done">implement</span>
+          <span class="stage active">review</span>
+          <span class="stage">commit</span>
+          <span class="stage">pr</span>
+          <span class="stage">merge</span>
+        </div>
+        <div class="terminal-preview">
+          <p><span>$</span> kanna-cli stage-complete --task website-refresh --stage implement</p>
+          <p><span>$</span> kanna mcp create-task "Follow-up copy pass"</p>
+          <p class="success">revision requested - review agent spawned</p>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <strong>Diff</strong>
+            <span>index.html changed</span>
+          </div>
+          <div class="activity-item">
+            <strong>Files</strong>
+            <span>tree explorer ready</span>
+          </div>
+        </div>
+      </div>
+      <div class="shot-inspector">
+        <div class="inspector-card">
+          <strong>Pipeline</strong>
+          <span>User-defined stages with post-actions, revisions, and follow-up task creation.</span>
+        </div>
+        <div class="inspector-card">
+          <strong>Worktree</strong>
+          <span>Each task gets an isolated branch workspace and terminal context.</span>
+        </div>
+        <div class="inspector-card">
+          <strong>Access</strong>
+          <span>Desktop, CLI, MCP, and mobile views can all move work forward.</span>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
 <section class="features">
-  <p class="section-label">// WHAT IT DOES</p>
+  <div class="section-heading">
+    <div>
+      <p class="section-label">// WHAT IT DOES</p>
+      <h2>Agent autonomy inside explicit workflow boundaries.</h2>
+    </div>
+    <p class="section-note">
+      Kanna is the coordination layer between coding agents, git worktrees, and the stages your team wants every task to follow.
+    </p>
+  </div>
+
   <div class="feature-grid">
+    <article class="feature">
+      <div class="feature-mark hot"></div>
+      <h3>User-defined pipelines</h3>
+      <p>Model the way work should move: stages, post-actions, revisions, and follow-up task spawning are defined in pipeline JSON instead of hard-coded into a single happy path.</p>
+    </article>
 
-    <div class="feature">
-      <div class="feature-bars">
-        <div class="bar" style="width:90%; background: linear-gradient(90deg,#ff2d78,#ff8c00);"></div>
-        <div class="bar" style="width:55%; background: linear-gradient(90deg,#cc1fcc,#ff2d78); opacity:0.7;"></div>
-        <div class="bar" style="width:30%; background: linear-gradient(90deg,#9b1faa,#cc1fcc); opacity:0.45;"></div>
-      </div>
-      <h3>PARALLEL AGENTS</h3>
-      <p>Spin up multiple Claude Code sessions simultaneously. Each runs in its own worktree, independently, without blocking you.</p>
-    </div>
+    <article class="feature">
+      <div class="feature-mark violet"></div>
+      <h3>Provider-neutral agents</h3>
+      <p>Run Claude, Codex, or Copilot against isolated git worktrees. Each task keeps its own branch, terminal session, and stage history.</p>
+    </article>
 
-    <div class="feature">
-      <div class="feature-bars">
-        <div class="bar" style="width:75%; background: linear-gradient(90deg,#ff2d78,#ff8c00);"></div>
-        <div class="bar" style="width:10%; background: #00FF41; opacity:0.9;"></div>
-      </div>
-      <h3>HUMAN IN LOOP</h3>
-      <p>Agents pause and surface decisions that need you. Review, approve, redirect — then get out of the way. Maximum velocity, minimum interruption.</p>
-    </div>
-
-    <div class="feature">
-      <div class="feature-bars">
-        <div class="bar" style="width:85%; background: linear-gradient(90deg,#6b1a8a,#e8357a); opacity:0.8;"></div>
-        <div class="bar" style="width:85%; background: linear-gradient(90deg,#6b1a8a,#e8357a); opacity:0.6;"></div>
-        <div class="bar" style="width:85%; background: linear-gradient(90deg,#6b1a8a,#e8357a); opacity:0.35;"></div>
-      </div>
-      <h3>NATIVE MACOS</h3>
-      <p>Built for Apple Silicon. Lives in your menu bar. Feels like it belongs — not like a web app wearing a trenchcoat.</p>
-    </div>
-
+    <article class="feature">
+      <div class="feature-mark blue"></div>
+      <h3>Operator tools</h3>
+      <p>Work from the desktop app, CLI, MCP, or mobile view with terminal access, diffs, file preview, tree explorer, commit graph, and task handoff.</p>
+    </article>
   </div>
 </section>
 
-<section class="demo">
-  <p class="section-label" style="text-align:center; margin-bottom:32px;">// PARALLEL FLOW</p>
-  <div class="terminal">
-    <div class="terminal-bar">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <span class="terminal-title">kanna — parallel sessions</span>
+<section class="workflow-section">
+  <div class="section-heading">
+    <div>
+      <p class="section-label">// WORKFLOW AUTONOMY</p>
+      <h2>Agents move through the workflow, not around it.</h2>
     </div>
-    <div class="terminal-body">
+    <p class="section-note">
+      Configurable stages let agents keep working autonomously while reviews, revisions, commits, PRs, and merges stay visible.
+    </p>
+  </div>
 
-      <div class="t-row">
-        <span class="t-label">agent_1</span>
-        <div class="t-track">
-          <div class="t-fill" style="width:82%; background:linear-gradient(90deg,#ff2d78,#ff8c00); animation-duration:1.8s;"></div>
-        </div>
-        <span class="t-status" style="color:#00FF41;">review<span class="cursor-blink"></span></span>
-      </div>
-
-      <div class="t-row">
-        <span class="t-label">agent_2</span>
-        <div class="t-track">
-          <div class="t-fill" style="width:51%; background:linear-gradient(90deg,#cc1fcc,#ff2d78); animation-duration:2.4s;"></div>
-        </div>
-        <span class="t-status" style="color:#cc1fcc;">running</span>
-      </div>
-
-      <div class="t-row">
-        <span class="t-label">agent_3</span>
-        <div class="t-track">
-          <div class="t-fill" style="width:23%; background:linear-gradient(90deg,#4a0e72,#9b1faa); animation-duration:3s;"></div>
-        </div>
-        <span class="t-status" style="color:#4a0e72;">running</span>
-      </div>
-
-      <div class="t-row">
-        <span class="t-label">agent_4</span>
-        <div class="t-track">
-          <div class="t-fill" style="width:4%; background:#2a2a3a; animation-duration:0.5s;"></div>
-        </div>
-        <span class="t-status" style="color:#2a2a4a;">queued</span>
-      </div>
-
+  <div class="workflow-board">
+    <div class="workflow-card current">
+      <span class="workflow-step">01</span>
+      <h3>Implement</h3>
+      <p>Agent works inside a task worktree and reports progress through Kanna.</p>
+    </div>
+    <div class="workflow-card current">
+      <span class="workflow-step">02</span>
+      <h3>Review</h3>
+      <p>Review can approve, request revision, or knock the task back to an earlier stage.</p>
+    </div>
+    <div class="workflow-card">
+      <span class="workflow-step">03</span>
+      <h3>Commit</h3>
+      <p>Configured post-actions can prepare commits, summaries, or handoff notes.</p>
+    </div>
+    <div class="workflow-card">
+      <span class="workflow-step">04</span>
+      <h3>PR</h3>
+      <p>CLI and MCP controls let agents advance stages or spawn follow-up tasks.</p>
+    </div>
+    <div class="workflow-card">
+      <span class="workflow-step">05</span>
+      <h3>Merge</h3>
+      <p>The workflow stays explicit from first prompt to final integration.</p>
     </div>
   </div>
 </section>
 
 <footer>
-  KANNA · PARALLEL FLOW · v0.1.0
+  KANNA - STRUCTURED AUTONOMY FOR CODING AGENTS
 </footer>
+
+<script>
+  const REPO = 'jemdiggity/kanna';
+
+  fetch(`https://api.github.com/repos/${REPO}/releases/latest`)
+    .then(r => r.json())
+    .then(release => {
+      const assets = release.assets || [];
+
+      const arm = assets.find(a =>
+        a.name.match(/arm64|apple.?silicon/i) && a.name.endsWith('.dmg')
+      );
+      const intel = assets.find(a =>
+        a.name.match(/x86|intel/i) && a.name.endsWith('.dmg')
+      );
+
+      if (arm) document.getElementById('btn-arm').href = arm.browser_download_url;
+      if (intel) document.getElementById('btn-intel').href = intel.browser_download_url;
+
+      if (release.tag_name) {
+        document.getElementById('version-label').textContent =
+          `${release.tag_name} · macOS 14+`;
+      }
+    })
+    .catch(() => {
+      // Keep default links if the release API is unavailable.
+    });
+</script>
 
 </body>
 </html>
