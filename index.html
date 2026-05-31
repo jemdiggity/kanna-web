@@ -614,7 +614,7 @@
 
   .workflow-board {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
   }
 
@@ -887,7 +887,7 @@
       <div class="mini-stage active">
         <span class="stage-dot"></span>
         <div>
-          <strong>Implement</strong>
+          <strong>In progress</strong>
           <small>Codex is updating the website worktree</small>
         </div>
         <span class="status-chip">active</span>
@@ -895,22 +895,22 @@
       <div class="mini-stage">
         <span class="stage-dot blue"></span>
         <div>
-          <strong>Review</strong>
-          <small>Can approve, request revision, or knock back</small>
+          <strong>Commit post-action</strong>
+          <small>Runs in-place before the task advances</small>
         </div>
         <span class="status-chip">next</span>
       </div>
       <div class="mini-stage">
         <span class="stage-dot green"></span>
         <div>
-          <strong>Follow-up</strong>
-          <small>Agents can spawn related tasks through CLI or MCP</small>
+          <strong>Review to PR</strong>
+          <small>Human checkpoint, then PR agent handoff</small>
         </div>
         <span class="status-chip">ready</span>
       </div>
       <div class="handoff-row">
         <span>stage-complete</span>
-        <span>revision-ready</span>
+        <span>post-action commit</span>
       </div>
     </aside>
   </div>
@@ -950,16 +950,15 @@
           <span class="agent-pill" data-agent-pill>Codex</span>
         </div>
         <div class="stage-strip">
-          <button type="button" class="stage done" data-stage-control="implement" aria-pressed="false">implement</button>
+          <button type="button" class="stage done" data-stage-control="in-progress" aria-pressed="false">in progress</button>
+          <button type="button" class="stage done" data-stage-control="commit-post-action" aria-pressed="false">commit post-action</button>
           <button type="button" class="stage active" data-stage-control="review" aria-pressed="true">review</button>
-          <button type="button" class="stage" data-stage-control="commit" aria-pressed="false">commit</button>
           <button type="button" class="stage" data-stage-control="pr" aria-pressed="false">pr</button>
-          <button type="button" class="stage" data-stage-control="merge" aria-pressed="false">merge</button>
         </div>
         <div class="terminal-preview">
-          <p><span>$</span> <span data-terminal-line="primary">kanna-cli stage-complete --task website-refresh --stage implement</span></p>
+          <p><span>$</span> <span data-terminal-line="primary">kanna-cli stage-complete --task website-refresh --status success</span></p>
           <p><span>$</span> <span data-terminal-line="secondary">kanna mcp create-task "Follow-up copy pass"</span></p>
-          <p class="success" data-terminal-status>revision requested - review agent spawned</p>
+          <p class="success" data-terminal-status>review checkpoint selected - approve, revise, or knock back before PR</p>
         </div>
         <div class="activity-list">
           <div class="activity-item">
@@ -975,7 +974,7 @@
       <div class="shot-inspector">
         <div class="inspector-card">
           <strong>Pipeline</strong>
-          <span data-inspector-pipeline>User-defined stages with post-actions, revisions, and follow-up task creation.</span>
+          <span data-inspector-pipeline>In progress stage, commit post-action, review checkpoint, and PR handoff.</span>
         </div>
         <div class="inspector-card">
           <strong>Worktree</strong>
@@ -1016,8 +1015,8 @@
 
     <article class="feature">
       <div class="feature-mark blue"></div>
-      <h3>Operator tools</h3>
-      <p>Work from the desktop app, CLI, MCP, or mobile view with terminal access, diffs, file preview, tree explorer, commit graph, and task handoff.</p>
+      <h3>Definable agents</h3>
+      <p>Add repo-specific agents like merge queue or shipping agents, then run them from the desktop app, CLI, MCP, or mobile view with terminal access, diffs, file preview, tree explorer, and commit graph nearby.</p>
     </article>
   </div>
 </section>
@@ -1029,35 +1028,30 @@
       <h2>Agents move through the workflow, not around it.</h2>
     </div>
     <p class="section-note">
-      Configurable stages let agents keep working autonomously while reviews, revisions, commits, PRs, and merges stay visible.
+      Configurable stages let agents keep working autonomously through in-progress work, commit post-actions, reviews, and PRs, while named agents handle merge queues, shipping, or repo-specific handoffs.
     </p>
   </div>
 
   <div class="workflow-board">
-    <button type="button" class="workflow-card current" data-stage-control="implement" aria-pressed="false">
+    <button type="button" class="workflow-card current" data-stage-control="in-progress" aria-pressed="false">
       <span class="workflow-step">01</span>
-      <h3>Implement</h3>
+      <h3>In progress</h3>
       <p>Agent works inside a task worktree and reports progress through Kanna.</p>
     </button>
-    <button type="button" class="workflow-card current" data-stage-control="review" aria-pressed="true">
+    <button type="button" class="workflow-card current" data-stage-control="commit-post-action" aria-pressed="false">
       <span class="workflow-step">02</span>
-      <h3>Review</h3>
-      <p>Review can approve, request revision, or knock the task back to an earlier stage.</p>
+      <h3>Commit post-action</h3>
+      <p>The commit agent runs in-place while the task remains in progress.</p>
     </button>
-    <button type="button" class="workflow-card" data-stage-control="commit" aria-pressed="false">
+    <button type="button" class="workflow-card current" data-stage-control="review" aria-pressed="true">
       <span class="workflow-step">03</span>
-      <h3>Commit</h3>
-      <p>Configured post-actions can prepare commits, summaries, or handoff notes.</p>
+      <h3>Review</h3>
+      <p>Review can approve, request revision, or knock the task back before PR.</p>
     </button>
     <button type="button" class="workflow-card" data-stage-control="pr" aria-pressed="false">
       <span class="workflow-step">04</span>
       <h3>PR</h3>
-      <p>CLI and MCP controls let agents advance stages or spawn follow-up tasks.</p>
-    </button>
-    <button type="button" class="workflow-card" data-stage-control="merge" aria-pressed="false">
-      <span class="workflow-step">05</span>
-      <h3>Merge</h3>
-      <p>The workflow stays explicit from first prompt to final integration.</p>
+      <p>The PR agent packages the branch while other definable agents handle merge queues or shipping.</p>
     </button>
   </div>
 </section>
@@ -1106,45 +1100,39 @@
       slug: 'pipeline-docs',
       agent: 'Codex',
       agentCommand: 'codex',
-      followUp: 'Add QA pipeline example',
+      followUp: 'Add merge queue agent',
       diff: '.kanna/pipelines changed',
       files: 'pipeline JSON open',
       worktree: 'task-pipeline-docs keeps workflow definitions isolated.',
-      access: 'Pipeline JSON, CLI, and MCP keep stage transitions explicit.',
+      access: 'Pipeline JSON, CLI, and MCP keep stage transitions explicit for merge queue and shipping agents.',
     },
   };
 
-  const stageOrder = ['implement', 'review', 'commit', 'pr', 'merge'];
+  const stageOrder = ['in-progress', 'commit-post-action', 'review', 'pr'];
   const stageCopy = {
-    implement: (task) => ({
+    'in-progress': (task) => ({
       primary: `kanna task start --agent ${task.agentCommand} "${task.title}"`,
-      secondary: `kanna-cli stage-complete --task ${task.slug} --stage implement`,
-      status: 'implementation active - worktree and terminal context are attached',
-      pipeline: 'Implement stage: agent receives task context, repo files, and terminal access.',
+      secondary: `kanna mcp stage-complete --task ${task.slug} --stage "in progress"`,
+      status: 'in progress selected - worktree and terminal context are attached',
+      pipeline: 'In progress stage: the agent works in the task branch, worktree, and terminal session.',
+    }),
+    'commit-post-action': (task) => ({
+      primary: `kanna mcp stage-complete --task ${task.slug} --stage "in progress"`,
+      secondary: `post-action commit runs in the existing ${task.agent} workspace`,
+      status: 'commit post-action selected - task stays in progress until commit succeeds',
+      pipeline: 'Commit post-action: Kanna commits without creating a separate commit stage or worktree.',
     }),
     review: (task) => ({
-      primary: `kanna-cli stage-complete --task ${task.slug} --stage implement`,
+      primary: `kanna-cli stage-complete --task ${task.slug} --status success`,
       secondary: `kanna mcp create-task "${task.followUp}"`,
-      status: 'revision requested - review agent spawned',
-      pipeline: 'Review stage: approve, request revision, or knock the task back to implementation.',
-    }),
-    commit: (task) => ({
-      primary: `kanna-cli advance-stage --task ${task.slug} --stage commit`,
-      secondary: `kanna-cli run-agent commit --task ${task.slug}`,
-      status: 'commit stage selected - post-actions can prepare summaries and commits',
-      pipeline: 'Commit stage: configured post-actions can package the completed task.',
+      status: 'review checkpoint selected - approve, revise, or knock back before PR',
+      pipeline: 'Review stage: put human-in-the-loop before the PR agent when the pipeline calls for it.',
     }),
     pr: (task) => ({
       primary: `kanna-cli advance-stage --task ${task.slug} --stage pr`,
-      secondary: `kanna mcp create-task "${task.followUp}"`,
-      status: 'PR stage selected - follow-up task controls are available',
-      pipeline: 'PR stage: agents can open pull requests or spawn follow-up work through MCP.',
-    }),
-    merge: (task) => ({
-      primary: `kanna-cli advance-stage --task ${task.slug} --stage merge`,
-      secondary: `kanna-cli run-agent merge --task ${task.slug}`,
-      status: 'merge stage selected - final integration remains explicit',
-      pipeline: 'Merge stage: integration remains visible instead of disappearing into agent state.',
+      secondary: `kanna-cli run-agent pr --task ${task.slug}`,
+      status: 'PR stage selected - PR agent prepares the GitHub pull request',
+      pipeline: 'PR stage: the PR agent packages the completed work while definable agents can handle merge queues or shipping.',
     }),
   };
 
