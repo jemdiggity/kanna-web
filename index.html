@@ -853,7 +853,7 @@
       <p class="hero-copy">
         Kanna lets Claude, Codex, and Copilot work through user-defined workflows:
         advancing stages, requesting revisions, spawning follow-up tasks, and
-        using Kanna CLI or MCP to coordinate stage changes while each task stays isolated in its own worktree.
+        using the built-in MCP to spawn follow-up tasks and progress through the workflow while each task stays isolated in its own worktree.
       </p>
 
       <div class="download-row">
@@ -982,7 +982,7 @@
         </div>
         <div class="inspector-card">
           <strong>Access</strong>
-          <span data-inspector-access>Desktop and mobile views keep operators in the loop; Kanna CLI and MCP give agents stage and task controls.</span>
+          <span data-inspector-access>Desktop and mobile views keep operators in the loop; the built-in MCP gives agents workflow and task controls.</span>
         </div>
       </div>
     </div>
@@ -1004,7 +1004,7 @@
     <article class="feature">
       <div class="feature-mark hot"></div>
       <h3>User-defined pipelines</h3>
-      <p>Define your own agent pipelines. Agents can autonomously move between stages through Kanna MCP, while user-defined human-in-the-loop checkpoints decide where review, approval, or revision is required.</p>
+      <p>Define your own agent pipelines. Agents can use the built-in MCP to spawn new tasks or autonomously progress through the workflow, while user-defined human-in-the-loop checkpoints decide where review, approval, or revision is required.</p>
     </article>
 
     <article class="feature">
@@ -1016,7 +1016,7 @@
     <article class="feature">
       <div class="feature-mark blue"></div>
       <h3>Definable agents</h3>
-      <p>Add repo-specific agents like merge queue or shipping agents. Desktop and mobile views keep operators in the loop; Kanna CLI and MCP give agents the control surface for stage changes, task creation, and handoffs.</p>
+      <p>Add repo-specific agents like merge queue or shipping agents. Desktop and mobile views keep operators in the loop; the built-in MCP gives agents the control surface for stage changes, task creation, and handoffs.</p>
     </article>
   </div>
 </section>
@@ -1071,7 +1071,7 @@
       diff: 'index.html changed',
       files: 'tree explorer ready',
       worktree: 'task-05f06a3e keeps the website branch isolated.',
-      access: 'Desktop and mobile views keep operators in the loop; Kanna CLI and MCP let agents move this task forward.',
+      access: 'Desktop and mobile views keep operators in the loop; the built-in MCP lets agents move this task forward.',
     },
     mcp: {
       title: 'Agent stage controls',
@@ -1082,7 +1082,7 @@
       diff: 'tools/kd changed',
       files: 'agent control registry open',
       worktree: 'task-agent-stage-controls keeps daemon tooling changes isolated.',
-      access: 'Kanna MCP tools and CLI commands let agents advance, revise, or spawn related work.',
+      access: 'The built-in MCP lets agents advance, revise, or spawn related work.',
     },
     mobile: {
       title: 'Mobile handoff',
@@ -1104,7 +1104,7 @@
       diff: '.kanna/pipelines changed',
       files: 'pipeline JSON open',
       worktree: 'task-pipeline-docs keeps workflow definitions isolated.',
-      access: 'Pipeline JSON defines the route; Kanna CLI and MCP let merge queue and shipping agents act inside it.',
+      access: 'Pipeline JSON defines the route; the built-in MCP lets merge queue and shipping agents act inside it.',
     },
   };
 
