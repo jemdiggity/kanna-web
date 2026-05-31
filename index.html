@@ -853,7 +853,7 @@
       <p class="hero-copy">
         Kanna lets Claude, Codex, and Copilot work through user-defined workflows:
         advancing stages, requesting revisions, spawning follow-up tasks, and
-        coordinating through CLI or MCP while each task stays isolated in its own worktree.
+        using Kanna CLI or MCP to coordinate stage changes while each task stays isolated in its own worktree.
       </p>
 
       <div class="download-row">
@@ -940,7 +940,7 @@
       <div class="shot-sidebar">
         <div class="repo-name">kanna-web-3</div>
         <button type="button" class="task active" data-task-control="website" aria-pressed="true">Website refresh</button>
-        <button type="button" class="task" data-task-control="mcp" aria-pressed="false">MCP stage controls</button>
+        <button type="button" class="task" data-task-control="mcp" aria-pressed="false">Agent stage controls</button>
         <button type="button" class="task" data-task-control="mobile" aria-pressed="false">Mobile handoff</button>
         <button type="button" class="task" data-task-control="pipeline" aria-pressed="false">Pipeline docs</button>
       </div>
@@ -982,7 +982,7 @@
         </div>
         <div class="inspector-card">
           <strong>Access</strong>
-          <span data-inspector-access>Desktop, CLI, MCP, and mobile views can all move work forward.</span>
+          <span data-inspector-access>Desktop and mobile views keep operators in the loop; Kanna CLI and MCP give agents stage and task controls.</span>
         </div>
       </div>
     </div>
@@ -1004,7 +1004,7 @@
     <article class="feature">
       <div class="feature-mark hot"></div>
       <h3>User-defined pipelines</h3>
-      <p>Define your own agent pipelines. Agents can autonomously move between stages through the Kanna MCP, while user-defined human-in-the-loop checkpoints decide where review, approval, or revision is required.</p>
+      <p>Define your own agent pipelines. Agents can autonomously move between stages through Kanna MCP, while user-defined human-in-the-loop checkpoints decide where review, approval, or revision is required.</p>
     </article>
 
     <article class="feature">
@@ -1016,7 +1016,7 @@
     <article class="feature">
       <div class="feature-mark blue"></div>
       <h3>Definable agents</h3>
-      <p>Add repo-specific agents like merge queue or shipping agents, then run them from the desktop app, CLI, MCP, or mobile view with terminal access, diffs, file preview, tree explorer, and commit graph nearby.</p>
+      <p>Add repo-specific agents like merge queue or shipping agents. Desktop and mobile views keep operators in the loop; Kanna CLI and MCP give agents the control surface for stage changes, task creation, and handoffs.</p>
     </article>
   </div>
 </section>
@@ -1071,18 +1071,18 @@
       diff: 'index.html changed',
       files: 'tree explorer ready',
       worktree: 'task-05f06a3e keeps the website branch isolated.',
-      access: 'Desktop, CLI, MCP, and mobile views can all move this website task forward.',
+      access: 'Desktop and mobile views keep operators in the loop; Kanna CLI and MCP let agents move this task forward.',
     },
     mcp: {
-      title: 'MCP stage controls',
-      slug: 'mcp-stage-controls',
+      title: 'Agent stage controls',
+      slug: 'agent-stage-controls',
       agent: 'Claude',
       agentCommand: 'claude',
-      followUp: 'Document MCP tool output',
+      followUp: 'Document agent MCP output',
       diff: 'tools/kd changed',
-      files: 'MCP registry open',
-      worktree: 'task-mcp-stage-controls keeps daemon tooling changes isolated.',
-      access: 'MCP tools and CLI commands can advance or revise this task.',
+      files: 'agent control registry open',
+      worktree: 'task-agent-stage-controls keeps daemon tooling changes isolated.',
+      access: 'Kanna MCP tools and CLI commands let agents advance, revise, or spawn related work.',
     },
     mobile: {
       title: 'Mobile handoff',
@@ -1104,7 +1104,7 @@
       diff: '.kanna/pipelines changed',
       files: 'pipeline JSON open',
       worktree: 'task-pipeline-docs keeps workflow definitions isolated.',
-      access: 'Pipeline JSON, CLI, and MCP keep stage transitions explicit for merge queue and shipping agents.',
+      access: 'Pipeline JSON defines the route; Kanna CLI and MCP let merge queue and shipping agents act inside it.',
     },
   };
 
